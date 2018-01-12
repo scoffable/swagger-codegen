@@ -14,6 +14,14 @@
         <url>{{scmUrl}}</url>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>scoffable-releases</name>
+            <url>https://scoffable.jfrog.io/scoffable/libs-release-local</url>
+        </repository>
+    </distributionManagement>
+
     <licenses>
         <license>
             <name>{{licenseName}}</name>
@@ -211,6 +219,11 @@
         </dependency>
         <dependency>
             <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-okhttp</artifactId>
+            <version>${feign-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
             <artifactId>feign-hystrix</artifactId>
             <version>${feign-version}</version>
         </dependency>
@@ -236,6 +249,7 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-version}</version>
         </dependency>
+
         {{#withXml}}
 
             <!-- XML Support -->

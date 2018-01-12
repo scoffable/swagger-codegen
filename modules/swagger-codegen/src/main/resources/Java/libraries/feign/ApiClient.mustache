@@ -24,6 +24,7 @@ import com.fasterxml.jackson.datatype.threetenbp.ThreeTenModule;
 
 import feign.Feign;
 import feign.okhttp.OkHttpClient;
+import feign.hystrix.HystrixFeign;
 import feign.RequestInterceptor;
 import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
@@ -44,7 +45,7 @@ public class ApiClient {
   public ApiClient() {
     objectMapper = createObjectMapper();
     apiAuthorizations = new LinkedHashMap<String, RequestInterceptor>();
-    feignBuilder = Feign.builder()
+    feignBuilder = HystrixFeign.builder()
                 .client(new OkHttpClient())
                 .encoder(new FormEncoder(new JacksonEncoder(objectMapper)))
                 .decoder(new JacksonDecoder(objectMapper))

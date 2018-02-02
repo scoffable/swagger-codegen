@@ -1,5 +1,7 @@
 package {{invokerPackage}};
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -23,9 +25,14 @@ import com.fasterxml.jackson.datatype.threetenbp.ThreeTenModule;
 {{/threetenbp}}
 
 import feign.Feign;
+import feign.FeignException;
+
 import feign.okhttp.OkHttpClient;
 import feign.hystrix.HystrixFeign;
 import feign.RequestInterceptor;
+import feign.Response;
+import feign.codec.DecodeException;
+import feign.codec.Decoder;
 import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
@@ -48,7 +55,17 @@ public class ApiClient {
     feignBuilder = HystrixFeign.builder()
                 .client(new OkHttpClient())
                 .encoder(new FormEncoder(new JacksonEncoder(objectMapper)))
-                .decoder(new JacksonDecoder(objectMapper))
+                .decoder(new Decoder() {
+					@Override
+					public Object decode(Response pResponse, Type pType) throws IOException, DecodeException, FeignException {
+						if (pType.getTypeName().equals("byte[]")) {
+							return new Decoder.Default().decode(pResponse, pType);
+						}
+						else {
+							return new JacksonDecoder().decode(pResponse, pType);
+						}
+					}
+				})
                 .logger(new Slf4jLogger());
   }
 

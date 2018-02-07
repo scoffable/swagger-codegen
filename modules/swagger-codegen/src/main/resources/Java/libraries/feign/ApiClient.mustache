@@ -62,7 +62,7 @@ public class ApiClient {
 							return new Decoder.Default().decode(pResponse, pType);
 						}
 						else {
-							return new JacksonDecoder().decode(pResponse, pType);
+							return new JacksonDecoder(objectMapper).decode(pResponse, pType);
 						}
 					}
 				})

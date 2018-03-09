@@ -1,6 +1,7 @@
 package {{invokerPackage}};
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,6 +18,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 {{#joda}}
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 {{/joda}}
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommand.Setter;
 {{#java8}}
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 {{/java8}}
@@ -29,8 +34,10 @@ import feign.FeignException;
 
 import feign.okhttp.OkHttpClient;
 import feign.hystrix.HystrixFeign;
+import feign.hystrix.SetterFactory;
 import feign.RequestInterceptor;
 import feign.Response;
+import feign.Target;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import feign.form.FormEncoder;
@@ -49,25 +56,48 @@ public class ApiClient {
   private Map<String, RequestInterceptor> apiAuthorizations;
   private Feign.Builder feignBuilder;
 
-  public ApiClient() {
-    objectMapper = createObjectMapper();
-    apiAuthorizations = new LinkedHashMap<String, RequestInterceptor>();
-    feignBuilder = HystrixFeign.builder()
-                .client(new OkHttpClient())
-                .encoder(new FormEncoder(new JacksonEncoder(objectMapper)))
-                .decoder(new Decoder() {
-					@Override
-					public Object decode(Response pResponse, Type pType) throws IOException, DecodeException, FeignException {
-						if (pType.getTypeName().equals("byte[]")) {
-							return new Decoder.Default().decode(pResponse, pType);
-						}
-						else {
-							return new JacksonDecoder(objectMapper).decode(pResponse, pType);
-						}
-					}
-				})
-                .logger(new Slf4jLogger());
-  }
+    public ApiClient() {
+      objectMapper = createObjectMapper();
+      apiAuthorizations = new LinkedHashMap<String, RequestInterceptor>();
+      feignBuilder = HystrixFeign.builder()
+                  .client(new OkHttpClient())
+                  .encoder(new FormEncoder(new JacksonEncoder(objectMapper)))
+                  .decoder(new Decoder() {
+  					@Override
+  					public Object decode(Response pResponse, Type pType) throws IOException, DecodeException, FeignException {
+  						if (pType.getTypeName().equals("byte[]")) {
+  							return new Decoder.Default().decode(pResponse, pType);
+  						}
+  						else {
+  							return new JacksonDecoder(objectMapper).decode(pResponse, pType);
+  						}
+  					}
+  				})
+  				.setterFactory(getSetterFactory())
+                  .logger(new Slf4jLogger());
+    }
+
+  private SetterFactory getSetterFactory() {
+  return new SetterFactory() {
+
+    @Override
+    public Setter create(Target<?> target, Method method) {
+      String groupKey = target.name();
+      String commandKey = configKey(target.type(), method);
+      return HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
+          .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey));
+    }
+
+  };
+}
+
+private static String configKey(Class targetType, Method method) {
+  StringBuilder builder = new StringBuilder();
+  builder.append(targetType.getSimpleName());
+  builder.append('#').append(method.getName());
+  return builder.toString();
+}
+
 
   public ApiClient(String[] authNames) {
     this();

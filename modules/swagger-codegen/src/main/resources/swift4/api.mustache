@@ -129,7 +129,7 @@ open class {{classname}} {
 
         let url = NSURLComponents(string: URLString)
         {{#hasQueryParams}}
-        url?.queryItems = APIHelper.mapValuesToQueryItems(values:[
+        url?.queryItems = APIHelper.mapValuesToQueryItems([
             {{#queryParams}}
             {{> _param}}{{#hasMore}}, {{/hasMore}}
             {{/queryParams}}

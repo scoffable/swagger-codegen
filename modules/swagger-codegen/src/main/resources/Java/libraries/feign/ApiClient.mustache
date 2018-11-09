@@ -21,6 +21,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.exception.HystrixBadRequestException;
 import com.netflix.hystrix.HystrixCommand.Setter;
 {{#java8}}
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -40,6 +41,7 @@ import feign.Response;
 import feign.Target;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
+import feign.codec.ErrorDecoder;
 import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;

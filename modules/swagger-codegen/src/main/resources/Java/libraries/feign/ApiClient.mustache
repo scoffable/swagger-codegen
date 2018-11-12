@@ -21,6 +21,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.exception.HystrixBadRequestException;
 import com.netflix.hystrix.HystrixCommand.Setter;
 {{#java8}}
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -40,6 +41,7 @@ import feign.Response;
 import feign.Target;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
+import feign.codec.ErrorDecoder;
 import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
@@ -56,26 +58,44 @@ public class ApiClient {
   private Map<String, RequestInterceptor> apiAuthorizations;
   private Feign.Builder feignBuilder;
 
-    public ApiClient() {
+  public ApiClient() {
       objectMapper = createObjectMapper();
       apiAuthorizations = new LinkedHashMap<String, RequestInterceptor>();
       feignBuilder = HystrixFeign.builder()
                   .client(new OkHttpClient())
                   .encoder(new FormEncoder(new JacksonEncoder(objectMapper)))
                   .decoder(new Decoder() {
-  					@Override
-  					public Object decode(Response pResponse, Type pType) throws IOException, DecodeException, FeignException {
-  						if (pType.getTypeName().equals("byte[]")) {
-  							return new Decoder.Default().decode(pResponse, pType);
-  						}
-  						else {
-  							return new JacksonDecoder(objectMapper).decode(pResponse, pType);
-  						}
-  					}
-  				})
+                	  @Override
+                	  public Object decode(Response pResponse, Type pType) throws IOException, DecodeException, FeignException {
+                		  if (pType.getTypeName().equals("byte[]")) {
+                			  return new Decoder.Default().decode(pResponse, pType);
+                		  }
+                		  else {
+							return new JacksonDecoder(objectMapper).decode(pResponse, pType);
+                		  }
+                	  }
+  					})
+                  .errorDecoder(new ErrorDecoder() {
+					@Override
+					public Exception decode(String methodKey, Response response) {
+						
+						Exception defaultException = new ErrorDecoder.Default().decode(methodKey, response);
+						
+						// If we have a response code in the 4XX range then we want to wrap our Exception in a 
+						// HystrixBadRequestException to pass through Hystrix without triggering circuit breakers and adding to
+						// Hystrix statistics
+						if (response.status() >= 400 && response.status() <= 499) {
+							return new HystrixBadRequestException("Bad Request Exception", defaultException);
+						}
+						
+						// Otherwise, normal behaviour
+						return defaultException;
+					}
+                  })
   				.setterFactory(getSetterFactory())
-                  .logger(new Slf4jLogger());
+                .logger(new Slf4jLogger());
     }
+
 
   private SetterFactory getSetterFactory() {
   return new SetterFactory() {

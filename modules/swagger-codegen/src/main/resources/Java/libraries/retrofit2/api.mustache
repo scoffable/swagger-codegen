@@ -32,9 +32,8 @@ public interface {{classname}} {
   /**
    * {{summary}}
    * {{notes}}
-{{#allParams}}
-   * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
-{{/allParams}}
+{{#allParams}}{{^isHeaderParam}}* @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+   {{/isHeaderParam}}{{/allParams}}
    * @return Call&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Object{{/returnType}}&gt;
 {{#externalDocs}}
    * {{description}}
@@ -54,11 +53,13 @@ public interface {{classname}} {
   })
   {{/-first}}
   {{/prioritizedContentTypes}}
-  {{/formParams}}  
+  {{/formParams}}
   @{{httpMethod}}("{{{path}}}")
-  {{^doNotUseRx}}Observable{{/doNotUseRx}}{{#doNotUseRx}}Call{{/doNotUseRx}}<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}{{/isResponseFile}}> {{operationId}}({{^allParams}});{{/allParams}}
-    {{#allParams}}{{>libraries/retrofit2/queryParams}}{{>libraries/retrofit2/pathParams}}{{>libraries/retrofit2/headerParams}}{{>libraries/retrofit2/bodyParams}}{{>libraries/retrofit2/formParams}}{{#hasMore}}, {{/hasMore}}{{^hasMore}}
-  );{{/hasMore}}{{/allParams}}
+  {{^doNotUseRx}}Observable{{/doNotUseRx}}{{#doNotUseRx}}Call{{/doNotUseRx}}<{{#isResponseFile}}ResponseBody{{/isResponseFile}}{{^isResponseFile}}{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Object{{/returnType}}{{/isResponseFile}}> {{operationId}}(
+    {{#pathParams}}{{>libraries/retrofit2/pathParams}}{{#hasMore}}, {{/hasMore}}{{/pathParams}}
+    {{#hasBodyParam}}{{#hasPathParams}}, {{/hasPathParams}}{{/hasBodyParam}}{{#bodyParams}}{{>libraries/retrofit2/bodyParams}}{{#hasMore}}, {{/hasMore}}{{/bodyParams}}
+    {{#hasQueryParams}}{{#hasPathParams}}, {{/hasPathParams}}{{^hasPathParams}}{{#hasBodyParam}}, {{/hasBodyParam}}{{/hasPathParams}}{{/hasQueryParams}}{{#queryParams}}{{>libraries/retrofit2/queryParams}}{{#hasMore}}, {{/hasMore}}{{/queryParams}}
+  );
 
   {{/operation}}
 }

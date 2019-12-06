@@ -26,7 +26,11 @@ open class RequestBuilder<T> {
 
     required public init(method: String, URLString: String, parameters: [String:Any]?, isBody: Bool, headers: [String:String] = [:]) {
         self.method = method
-        self.URLString = URLString
+        // This fixes a problem we have discovered with Apple's URL Encoding where plus characters are not URL encoded
+        // and end up as spaces on the server. See here: https://developer.apple.com/documentation/foundation/nsurlcomponents/1407752-queryitems
+        // The following ensures that plus signs are also encoded.
+        let allowedCharacters = CharacterSet(charactersIn: "+").inverted
+        self.URLString = URLString.addingPercentEncoding(withAllowedCharacters: allowedCharacters) ?? URLString
         self.parameters = parameters
         self.isBody = isBody
         self.headers = headers

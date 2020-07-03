@@ -14,13 +14,13 @@
         <url>{{scmUrl}}</url>
     </scm>
 
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>scoffable-releases</name>
-            <url>https://scoffable.jfrog.io/scoffable/libs-release-local</url>
-        </repository>
-    </distributionManagement>
+	<distributionManagement>
+	   <repository>
+	     <id>github</id>
+	     <name>GitHub Scoffable Apache Maven Packages</name>
+	     <url>https://maven.pkg.github.com/scoffable/${artifactId}</url>
+	   </repository>
+	</distributionManagement>
 
     <licenses>
         <license>

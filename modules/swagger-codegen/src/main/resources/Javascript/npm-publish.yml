@@ -19,7 +19,7 @@ jobs:
 
       # AUTOMATION_REPO_ACCESS_TOKEN has read only access to all scoffable packages
       - run: echo "//npm.pkg.github.com/scoffable:_authToken=${{ secrets.AUTOMATION_REPO_ACCESS_TOKEN }}" > ~/.npmrc
-      - run: npm ci
+      - run: npm install
       - run: npm test
 
       # GITHUB_TOKEN has package write access only in this repo

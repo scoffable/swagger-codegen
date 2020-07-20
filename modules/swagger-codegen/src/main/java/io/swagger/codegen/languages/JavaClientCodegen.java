@@ -210,7 +210,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen
             additionalProperties.put("jackson", "true");
             supportingFiles.add(new SupportingFile("ParamExpander.mustache", invokerFolder, "ParamExpander.java"));
             supportingFiles.add(new SupportingFile("EncodingUtils.mustache", invokerFolder, "EncodingUtils.java"));
-            supportingFiles.add(new SupportingFile("maven-publish.yml.mustache", ".github/workflows", "maven-publish.yml"));
+            supportingFiles.add(new SupportingFile("maven-publish.yml", ".github/workflows", "maven-publish.yml"));
         } else if ("okhttp-gson".equals(getLibrary()) || StringUtils.isEmpty(getLibrary())) {
             // the "okhttp-gson" library template requires "ApiCallback.mustache" for async call
             supportingFiles.add(new SupportingFile("ApiCallback.mustache", invokerFolder, "ApiCallback.java"));
@@ -226,6 +226,7 @@ public class JavaClientCodegen extends AbstractJavaCodegen
             additionalProperties.put("gson", "true");
             if ("retrofit2".equals(getLibrary()) && !usePlayWS) {
                 supportingFiles.add(new SupportingFile("JSON.mustache", invokerFolder, "JSON.java"));
+                supportingFiles.add(new SupportingFile("maven-publish.yml", ".github/workflows", "maven-publish.yml"));
             }
         } else if ("jersey2".equals(getLibrary()) || "resteasy".equals(getLibrary()))  {
             supportingFiles.add(new SupportingFile("JSON.mustache", invokerFolder, "JSON.java"));

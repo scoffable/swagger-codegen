@@ -7,7 +7,7 @@ on:
     branches:
       - master
 jobs:
-  connector-gen:
+  build-and-commit-cli-jar:
     timeout-minutes: 15
     runs-on: ubuntu-latest
 

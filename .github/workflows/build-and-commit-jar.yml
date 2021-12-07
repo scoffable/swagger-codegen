@@ -25,8 +25,8 @@ jobs:
         run: |
           cp -f modules/swagger-codegen-cli/target/swagger-codegen-cli.jar .
 
-      - name: Commit updated connectors (if needed)
+      - name: Commit updated JAR file
         if: github.actor != 'scoffableautomation' # If this run was already triggered by an automated commit, this avoids a potential infinite loop
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Regenerated Swagger CLI
+          commit_message: Regenerated Swagger CLI JAR

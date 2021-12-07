@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.AUTOMATION_REPO_ACCESS_TOKEN }}
+          token: ${{ secrets.SWAGGER_CODEGEN_REPO_ACCESS_TOKEN }}
 
       - name: Build JAR
         run: |

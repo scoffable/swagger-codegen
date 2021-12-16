@@ -97,7 +97,7 @@ ext {
     jackson_version = "2.7.5"
     jersey_version = "2.22.2"
     jodatime_version = "2.9.4"
-    junit_version = "4.12"
+    junit_version = "4.13.2"
 }
 
 dependencies {

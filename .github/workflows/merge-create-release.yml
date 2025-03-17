@@ -1,0 +1,28 @@
+name: Publish release
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  publish-release:
+    if: github.event.pull_request.merged == true && (contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/heads/master'))
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history to allow git rev-parse to work.
+
+      - name: Create release
+        uses: scoffable/pr-merge-release-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_pat: ${{ secrets.READWRITE_REPO_CONTENTS_ACCESS_TOKEN }}
+          pr_title: ${{ github.event.pull_request.title }}
+          pr_url: ${{ github.event.pull_request.html_url }}
+          repository: ${{ github.repository }}
+          slack-github-token: ${{ github.token }}
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}

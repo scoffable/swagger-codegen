@@ -1,0 +1,22 @@
+name: Publish prerelease
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  publish-prerelease:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history to allow git rev-parse to work
+
+      - name: Create Prerelease
+        uses: scoffable/pr-publish-prerelease-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_pat: ${{ secrets.READWRITE_REPO_CONTENTS_ACCESS_TOKEN }}
+          feature_branch: ${{ github.head_ref }}

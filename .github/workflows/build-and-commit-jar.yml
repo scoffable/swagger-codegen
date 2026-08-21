@@ -15,11 +15,17 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.SWAGGER_CODEGEN_REPO_ACCESS_TOKEN }}
+          # The dedicated SWAGGER_CODEGEN_REPO_ACCESS_TOKEN secret holds a dead
+          # credential, so checkout fails with it; the default token works for
+          # checkout and for the auto-commit (whose push then triggers nothing,
+          # which the actor guard below already wants)
 
       - name: Build JAR
+        # Build only the CLI module and its dependencies: the full build includes
+        # the swagger-generator war, whose swagger-ui download references an
+        # upstream branch that no longer exists
         run: |
-          mvn clean package -DskipTests
+          mvn clean package -DskipTests -pl modules/swagger-codegen-cli -am
 
       - name: Copy JAR to root directory
         run: |

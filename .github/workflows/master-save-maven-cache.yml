@@ -1,0 +1,15 @@
+name: Master - Save Maven Cache
+
+# A pull request can restore a cache saved on its own ref or on master, and no other. The PR
+# workflows only ever save under refs/pull/N/merge, so without this each new PR would start with
+# an empty ~/.m2 and spend minutes downloading. The shared workflow saves the same caches under
+# the same keys on master, where every PR can read them.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  save-maven-cache:
+    uses: scoffable/scoffable-github-workflows/.github/workflows/maven-cache-save.yml@master
+    secrets: inherit
